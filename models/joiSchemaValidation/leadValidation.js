@@ -1,9 +1,9 @@
 const joi=require("joi");
 
-const leadSchema=joi.object({
+const leadSchemaValidation=joi.object({
     name:joi.string().min(2).max(100).required(),
     email:joi.string().email().required(),
-    phone:joi.string().min(10).max(15).required(),
+    phone: joi.number().min(6000000000).max(9999999999).required(),
     address:joi.string().min(5).max(200).required(),
     title:joi.string().min(2).max(100),
     followUpStatus:joi.string().min(2).max(50),
@@ -15,4 +15,4 @@ const leadSchema=joi.object({
     score:joi.number().min(0).max(100),
 });
 
-module.exports=leadSchema;
+module.exports=leadSchemaValidation;

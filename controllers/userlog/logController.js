@@ -13,8 +13,8 @@ module.exports.register = wrapAsync(async (req, res, next) => {
     }
     const newUser = new User({...req.body, password: hashedPassword});
     await newUser.save();
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {expiresIn:'60*60*24*30' });
-    res.cookie("token", token, { httpOnly: true });
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {expiresIn:'14d' });
+    res.cookie("token", token, { httpOnly: true , sameSite: 'None' });
     res.status(201).send('User registered successfully');
 });
 
@@ -28,12 +28,16 @@ module.exports.login = wrapAsync(async (req, res, next) => {
     if (!isMatch) {
         throw new ExpressError(400, "Invalid email or password");
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '60*60*24*30' });
-    res.cookie("token", token, { httpOnly: true });
-    res.status(200).send("User logged in successfully");
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '14d' });
+
+    res.cookie("token", token, { httpOnly: true, sameSite: 'none' });
+
+    // console.log(res);
+    res.status(200).send( { token });
 });
 module.exports.logout = wrapAsync(async (req, res, next) => {
     // Logic to logout a user
+    // console.log(req.cookies);
     res.clearCookie("token");
     res.status(200).send("User logged out successfully");
 });
