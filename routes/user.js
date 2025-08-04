@@ -6,8 +6,9 @@ const { isAdmin, isManager, isloggedIn } = require('../middlewares/auth');
 
 route.post('/register', isRegisterValid, register);
 route.post('/login', isloginValid, login);
-route.post('/logout',isloggedIn, logout);
-route.post('/newAdmin',isloginValid, isloggedIn, isAdmin, newAdmin);
+route.delete('/logout', logout);
+route.post('/newAdmin', isloginValid,isloggedIn, isAdmin, newAdmin);
 route.post('/newManager',isloginValid, isloggedIn, isManager, newManager);
  
 module.exports = route;
+ 
