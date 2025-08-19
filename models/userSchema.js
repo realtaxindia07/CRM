@@ -5,7 +5,11 @@ const userSchema=new mongoose.Schema({
     email:{ type:String, required:true, unique:true },
     phone:{ type:Number, required:true },
     password:{ type:String, required:true },
-    role:{ type:String, enum:['admin','manager','user'], default:'user' }
+    role:{ type:String, enum:['admin','manager','user'], default:'user' },
+    leads:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 },{
     timestamps:true
 }

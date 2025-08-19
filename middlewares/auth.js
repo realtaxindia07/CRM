@@ -1,5 +1,7 @@
 const jwt=require("jsonwebtoken");
 const ExpressError = require("../utils/CustomError");
+const User = require("../models/userSchema");
+const { wrapAsync } = require("../utils/wrapAsync");
 
 module.exports.isloggedIn = (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
@@ -14,15 +16,23 @@ module.exports.isloggedIn = (req, res, next) => {
         next();
     });
 };
-module.exports.isAdmin = (req, res, next) => {
-    if (!req.user || req.user.role !== 'admin') {
+module.exports.isAdmin = wrapAsync(async (req, res, next) => {
+    if (!req.user) {
+        throw new ExpressError(403, "Forbidden");
+    }
+    const user = await User.findById(req.user.id);
+    if (user.role !== 'admin') {
         throw new ExpressError(403, "Forbidden");
     }
     next();
-};
-module.exports.isManager = (req, res, next) => {
-    if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'manager')) {
+});
+module.exports.isManager = wrapAsync(async (req, res, next) => {
+    if (!req.user) {
+        throw new ExpressError(403, "Forbidden");
+    }
+    const user = await User.findById(req.user.id);
+    if (!(user.role === 'admin' || user.role === 'manager')) {
         throw new ExpressError(403, "Forbidden");
     }
     next();
-};
+});
