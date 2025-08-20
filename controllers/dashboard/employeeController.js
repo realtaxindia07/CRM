@@ -1,13 +1,18 @@
 const {wrapAsync} = require("../../utils/wrapAsync");
 const Employee = require("../../models/dashboard/employee");
 const UserInfo = require("../../models/dashboard/userInfo");
+const ExpressError = require("../../utils/CustomError");
 
 module.exports.getAllEmployees = wrapAsync(async (req, res, next) => {
     const employees = await Employee.find().populate('userInfo');
     res.status(200).send(employees);
 }); 
 module.exports.createEmployee = wrapAsync(async (req, res, next) => {
-    const {name, email, phone, address} = req.body;
+    const {name, email, phone, address} = req.body;     
+    const existingUser = await UserInfo.findOne({email});
+    if (existingUser) {
+        throw new ExpressError(400,"User with this email already exists");
+    }
     const newInfo = await UserInfo.create({name, email, phone, address});
     const newEmployee = await Employee.create({...req.body, userInfo: newInfo._id});
     await newEmployee.save();

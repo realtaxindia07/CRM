@@ -11,11 +11,11 @@ module.exports.register = wrapAsync(async (req, res, next) => {
     if (existingUser) {
         throw new ExpressError(400,"User already exists");
     }
-    const newUser = new User({...req.body, password: hashedPassword});
+    const newUser = new User({...req.body, password: hashedPassword, role: 'user' });
     await newUser.save();
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {expiresIn:'14d' });
     res.cookie("token", token, { httpOnly: true , sameSite: 'None' });
-    res.status(201).send('User registered successfully');
+    res.status(201).send(newUser);
 });
 
 module.exports.login = wrapAsync(async (req, res, next) => {
@@ -30,10 +30,10 @@ module.exports.login = wrapAsync(async (req, res, next) => {
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '14d' });
 
-    res.cookie("token", token, { httpOnly: true, sameSite: 'none' });
+    res.cookie("token", token, { httpOnly: true, sameSite: 'lax',maxAge: 14 * 24 * 60 * 60 * 1000 });
 
     // console.log(res);
-    res.status(200).send( { token });
+    res.status(200).send( user);
 });
 module.exports.logout = wrapAsync(async (req, res, next) => {
     // Logic to logout a user
@@ -43,23 +43,23 @@ module.exports.logout = wrapAsync(async (req, res, next) => {
 });
 module.exports.newAdmin = wrapAsync(async (req, res, next) => {
     // Logic to create a new admin user
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const existingUser = await User.findOne({ email: req.body.email });
-    if (existingUser) {
-        throw new ExpressError(400,"User already exists");
+    if (!existingUser) {
+        throw new ExpressError(404, "User not found");
     }
-    const newUser = new User({...req.body, password: hashedPassword, role: 'admin'});
-    await newUser.save();
-    res.status(201).send('Admin user created successfully');
+    let role=req.body.role;
+    existingUser.role = role || 'user';
+    await existingUser.save();
+    res.status(201).send(`${existingUser.role} user created successfully`);
 });
 module.exports.newManager = wrapAsync(async (req, res, next) => {
     // Logic to create a new manager user
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const existingUser = await User.findOne({ email: req.body.email });
-    if (existingUser) {
-        throw new ExpressError(400,"User already exists");
+    if (!existingUser) {
+        throw new ExpressError(404, "User not found");
     }
-    const newUser = new User({...req.body, password: hashedPassword, role: 'manager'});
-    await newUser.save();
-    res.status(201).send('Manager user created successfully');
+    let role = req.body.role;
+    existingUser.role = role || 'user';
+    await existingUser.save();
+    res.status(201).send(`${existingUser.role} user created successfully`);
 });
