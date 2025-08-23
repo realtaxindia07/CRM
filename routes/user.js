@@ -1,9 +1,10 @@
 const route=require("express").Router();
 const { login, register, logout} = require('../controllers/userlog/logController');
 const { isRegisterValid, isloginValid } = require('../middlewares/validation/user');
-const { newAdmin, newManager } = require('../controllers/userlog/logController');
+const { newAdmin, newManager ,newTeamLeader} = require('../controllers/userlog/logController');
 const { isAdmin, isManager, isloggedIn } = require('../middlewares/auth');
-const User = require('../models/userSchema'); // Assuming you have a User model defined
+const { isRoleValid } = require('../middlewares/validation/user');
+const User = require('../models/userSchema');
 
 route.get('/', (req, res) => {
     User.find({})
@@ -13,8 +14,8 @@ route.get('/', (req, res) => {
 route.post('/register', isRegisterValid, register);
 route.post('/login', isloginValid, login);
 route.delete('/logout', logout);
-route.post('/newAdmin', isRegisterValid,isloggedIn, isAdmin, newAdmin);
-route.post('/newManager',isRegisterValid, isloggedIn, isManager, newManager);
- 
+route.post('/newAdmin', isRoleValid, isloggedIn, isAdmin, newAdmin);
+route.post('/newManager', isRoleValid, isloggedIn, isManager, newManager);
+route.post('/newTeamLeader', isRoleValid, isloggedIn, isManager, newTeamLeader);
+
 module.exports = route;
- 

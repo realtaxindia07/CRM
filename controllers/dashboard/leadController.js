@@ -5,8 +5,8 @@ const User=require("../../models/userSchema")
 
 
 module.exports.getAllLeads=wrapAsync(async (req, res, next) => {
-    const user=await User.findById(req.user.id).populate({path: 'leads',populate: { path: 'userInfo' }});;
-    if(user.role==="admin"||user.role==="manager"){
+    const user=await User.findById(req.user.id).populate({path: 'leads',populate: { path: 'userInfo' }});
+    if(user.role==="admin"||user.role==="manager"||user.role==="teamLeader"){
        const leads= await Lead.find().populate('userInfo');
        res.status(200).send(leads);
     }else{
@@ -19,8 +19,8 @@ module.exports.createLead = wrapAsync(async (req, res, next) => {
     const newInfo=new Info({name, email, phone,address});
     await newInfo.save();
     const newLead = new Lead({ ...req.body, userInfo: newInfo._id });
-    await User.findByIdAndUpdate(req.user._id, { $push: { leads: newLead._id } });
     await newLead.save();
+    await User.findByIdAndUpdate(req.user.id, { $push: { leads: newLead._id } });
     await newLead.populate('userInfo');
     res.status(200).send(newLead);
 });
