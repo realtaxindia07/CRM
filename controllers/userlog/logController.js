@@ -59,6 +59,23 @@ module.exports.newManager = wrapAsync(async (req, res, next) => {
         throw new ExpressError(404, "User not found");
     }
     let role = req.body.role;
+    if (role === 'admin' ) {
+        throw new ExpressError(400, "Invalid role");
+    }
+    existingUser.role = role || 'user';
+    await existingUser.save();
+    res.status(201).send(`${existingUser.role} user created successfully`);
+});
+module.exports.newTeamLeader = wrapAsync(async (req, res, next) => {
+    // Logic to create a new team lead user
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (!existingUser) {
+        throw new ExpressError(404, "User not found");
+    }
+    let role = req.body.role;
+    if (role === 'admin' || role === 'manager') {
+        throw new ExpressError(400, "Invalid role");
+    }
     existingUser.role = role || 'user';
     await existingUser.save();
     res.status(201).send(`${existingUser.role} user created successfully`);

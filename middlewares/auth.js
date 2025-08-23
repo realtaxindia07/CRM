@@ -31,8 +31,21 @@ module.exports.isManager = wrapAsync(async (req, res, next) => {
         throw new ExpressError(403, "Forbidden");
     }
     const user = await User.findById(req.user.id);
-    if (!(user.role === 'admin' || user.role === 'manager')) {
+    if (user.role === 'admin' || user.role === 'manager') {
+        next();
+    }else{
+         throw new ExpressError(403, "Forbidden");
+    }
+
+});
+module.exports.isTeamLeader = wrapAsync(async (req, res, next) => {
+    if (!req.user) {
         throw new ExpressError(403, "Forbidden");
     }
-    next();
+    const user = await User.findById(req.user.id);
+    if (user.role === 'admin' || user.role === 'manager' || user.role === 'teamLeader') {
+        next();
+    }else{
+        throw new ExpressError(403, "Forbidden");
+    }
 });
