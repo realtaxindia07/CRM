@@ -9,7 +9,7 @@ const {getAllContacts,createContact,updateContact,deleteContact} = require('../c
 const {getAllProperties,createProperty,updateProperty,deleteProperty} = require('../controllers/dashboard/propertyController');
 const { root } = require('../controllers/dashboard/root');
 const { isLeadValid ,isEmployeeValid} = require('../middlewares/validation/dashboard');
-const { isloggedIn } = require('../middlewares/auth');
+const { isloggedIn ,isTeamLeader,isManager} = require('../middlewares/auth');
 
 
 // dashboard
@@ -27,7 +27,7 @@ route.get('/',isloggedIn, root);
 // route.delete('/contacts/:id', isloggedIn, deleteContact);
 
 // Employee routes
-route.get('/employees',isloggedIn, getAllEmployees); 
+route.get('/employees',isloggedIn, getAllEmployees);
 route.post('/employees',isEmployeeValid,isloggedIn, createEmployee);
 route.put('/employees/:id',isEmployeeValid,isloggedIn, updateEmployee);
 route.delete('/employees/:id',isloggedIn, deleteEmployee);
@@ -42,10 +42,10 @@ route.delete('/employees/:id',isloggedIn, deleteEmployee);
 // route.delete('/tasks/:id', isloggedIn, deleteTask);
 
 // Lead routes
-route.get('/leads',isloggedIn, getAllLeads);
-route.post('/leads',isLeadValid, isloggedIn, createLead);
-route.put('/leads/:id',isLeadValid, isloggedIn, updateLead);
-route.delete('/leads/:id', isloggedIn, deleteLead);
+route.get('/leads', isloggedIn, getAllLeads);
+route.post('/leads', isLeadValid, isloggedIn, createLead);
+route.put('/leads/:id', isLeadValid, isloggedIn, isTeamLeader, updateLead);
+route.delete('/leads/:id', isloggedIn, isManager, deleteLead);
 
 // // Call routes
 // route.get('/calls', isloggedIn, getAllCalls);
