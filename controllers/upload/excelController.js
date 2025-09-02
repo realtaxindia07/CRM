@@ -32,7 +32,7 @@ module.exports.excelController = wrapAsync(async (req, res) => {
       const {name, email, phone,address} = row;
       const newInfo=new Info({name, email, phone,address});
       await newInfo.save();
-      const newLead = new Lead({ ...row, userInfo: newInfo._id });
+      const newLead = new Lead({ ...row, userInfo: newInfo._id })
       await newLead.save();
       user.leads.push(newLead._id);
       await user.save();
