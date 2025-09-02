@@ -12,6 +12,9 @@ module.exports.excelController = wrapAsync(async (req, res) => {
   if (!file) {
     throw new ExpressError(400, 'No file uploaded');
   }
+  if(!file.originalname.endsWith('.xlsx')) {
+    throw new ExpressError(400, `File format must be ".xlsx"`);
+  }
   const workbook = xlsx.read(file.buffer, { type: 'buffer' });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const data = xlsx.utils.sheet_to_json(sheet);
@@ -29,7 +32,7 @@ module.exports.excelController = wrapAsync(async (req, res) => {
       const {name, email, phone,address} = row;
       const newInfo=new Info({name, email, phone,address});
       await newInfo.save();
-      const newLead = new Lead({ ...req.body, userInfo: newInfo._id });
+      const newLead = new Lead({ ...row, userInfo: newInfo._id });
       await newLead.save();
       user.leads.push(newLead._id);
       await user.save();
