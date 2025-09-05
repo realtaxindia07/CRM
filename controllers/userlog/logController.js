@@ -30,7 +30,7 @@ module.exports.login = wrapAsync(async (req, res, next) => {
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '14d' });
 
-    res.cookie("token", token, { httpOnly: true, sameSite: 'lax',maxAge: 14 * 24 * 60 * 60 * 1000 ,secure: true});
+    res.cookie("token", token, { httpOnly: true, sameSite: 'None',maxAge: 14 * 24 * 60 * 60 * 1000 ,secure: true});
 
     // console.log(res);
     res.status(200).send( user);
