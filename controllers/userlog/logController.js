@@ -14,7 +14,8 @@ module.exports.register = wrapAsync(async (req, res, next) => {
     const newUser = new User({...req.body, password: hashedPassword, role: 'user' });
     await newUser.save();
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {expiresIn:'14d' });
-    res.cookie("token", token, { httpOnly: true , sameSite: 'None' ,secure: true});
+    const isProduction = process.env.NODE_ENV ==='production';
+    res.cookie("token", token, { httpOnly: true, secure:'isProduction', sameSite: 'isProduction' ? 'None' : 'Lax',maxAge: 14 * 24 * 60 * 60 * 1000 });
     res.status(201).send(newUser);
 });
 
@@ -29,8 +30,8 @@ module.exports.login = wrapAsync(async (req, res, next) => {
         throw new ExpressError(400, "Invalid email or password");
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '14d' });
-
-    res.cookie("token", token, { httpOnly: true, sameSite: 'None',maxAge: 14 * 24 * 60 * 60 * 1000 ,secure: true});
+    const isProduction = process.env.NODE_ENV ==='production';
+    res.cookie("token", token, { httpOnly: true, secure:'isProduction', sameSite: 'isProduction' ? 'None' : 'Lax',maxAge: 14 * 24 * 60 * 60 * 1000 });
 
     // console.log(res);
     res.status(200).send( user);
